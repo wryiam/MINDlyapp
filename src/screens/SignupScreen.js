@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
     ActivityIndicator,
-    Alert,
     KeyboardAvoidingView,
     Platform,
     ScrollView,
@@ -16,7 +15,6 @@ import {
 import Svg, { Path, Defs, RadialGradient, Stop } from 'react-native-svg';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
-import * as Font from 'expo-font';
 
 const { width, height } = Dimensions.get('window');
 const AnimatedSvg = Animated.createAnimatedComponent(Svg);
@@ -32,6 +30,23 @@ const BLOB_PATHS = {
     end: 'M320,240 C440,40 760,160 840,240 C920,320 820,520 700,600 C580,680 340,620 220,500 C100,380 200,440 320,240 Z',
   },
 };
+
+ useEffect(() => {
+    const loadFonts = async () => {
+      try {
+        await Font.loadAsync({
+          'SynBold': require('../../assets/fonts/Syncopate-Bold.ttf'),
+          'SynReg': require('../../assets/fonts/Syncopate-Regular.ttf'),
+          'Sora': require('../../assets/fonts/Sora-Variable.ttf'),
+        });
+        setFontsLoaded(true);
+      } catch (error) {
+        console.error('Font loading error:', error);
+      }
+    };
+    loadFonts();
+  }, []);
+
 
 const FormInput = React.memo(({ 
     placeholder, 
@@ -75,13 +90,11 @@ const FormInput = React.memo(({
     </View>
   ));
 
-
-
-const SignupScreen = ({ onSwitchToLogin }) => {
+const SignupScreen = ({ onSwitchToLogin, onNext, initialData }) => {
   const [formData, setFormData] = useState({
-    username: '',
-    email: '',
-    password: '',
+    username: initialData?.username || '',
+    email: initialData?.email || '',
+    password: initialData?.password || '',
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -97,9 +110,6 @@ const SignupScreen = ({ onSwitchToLogin }) => {
 
   const formOpacity = useRef(new Animated.Value(0)).current;
   const formScale = useRef(new Animated.Value(0.9)).current;
-
-  // For Expo development - use your computer's IP address
-  const API_BASE_URL = 'http://192.168.1.193:5000'; // Replace with your computer's IP
 
   // Create dynamic styles based on font loading
   const getDynamicStyles = useCallback(() => ({
@@ -130,8 +140,6 @@ const SignupScreen = ({ onSwitchToLogin }) => {
   useEffect(() => {
     const loadFonts = async () => {
       try {
-        // Skip custom font loading for now to avoid the error
-        // You can add your fonts back when they're properly set up
         setFontsLoaded(false); // Use system fonts
       } catch (error) {
         console.warn('Custom fonts not found, using system fonts:', error);
@@ -149,7 +157,7 @@ const SignupScreen = ({ onSwitchToLogin }) => {
         Animated.timing(blob1Rotate, {
           toValue: 360,
           duration: 30000,
-          useNativeDriver: false, // Changed to false to avoid native driver issues
+          useNativeDriver: false,
         })
       ).start();
     };
@@ -159,7 +167,7 @@ const SignupScreen = ({ onSwitchToLogin }) => {
         Animated.timing(blob2Rotate, {
           toValue: 360,
           duration: 25000,
-          useNativeDriver: false, // Changed to false to avoid native driver issues
+          useNativeDriver: false,
         })
       ).start();
     };
@@ -211,12 +219,12 @@ const SignupScreen = ({ onSwitchToLogin }) => {
       Animated.timing(formOpacity, {
         toValue: 1,
         duration: 800,
-        useNativeDriver: false, // Changed to false
+        useNativeDriver: false,
       }),
       Animated.timing(formScale, {
         toValue: 1,
         duration: 800,
-        useNativeDriver: false, // Changed to false
+        useNativeDriver: false,
       }),
     ]).start();
   }, []);
@@ -242,7 +250,7 @@ const SignupScreen = ({ onSwitchToLogin }) => {
     outputRange: [BLOB_PATHS.blob2.start, BLOB_PATHS.blob2.end],
   });
 
-  // Fixed validation logic (based on login screen)
+  // Validation logic
   const validateForm = () => {
     const newErrors = {};
 
@@ -263,7 +271,7 @@ const SignupScreen = ({ onSwitchToLogin }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  // Fixed input change handler (based on login screen)
+  // Input change handler
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
@@ -279,7 +287,8 @@ const SignupScreen = ({ onSwitchToLogin }) => {
     }
   };
 
-  const handleSignup = async () => {
+  // Handle continue to next step instead of actual signup
+  const handleContinue = async () => {
     if (!validateForm()) {
       return;
     }
@@ -287,61 +296,21 @@ const SignupScreen = ({ onSwitchToLogin }) => {
     setLoading(true);
 
     try {
-      console.log('🔄 Attempting signup with:', {
-        username: formData.username,
-        email: formData.email,
-        password: formData.password ? '***hidden***' : 'empty'
+      // Simulate a brief loading time for better UX
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Pass the form data to the next step
+      onNext({
+        username: formData.username.trim(),
+        email: formData.email.trim().toLowerCase(),
+        password: formData.password,
       });
-
-      const response = await fetch(`${API_BASE_URL}/api/signup`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await response.json();
-
-      console.log('📦 Signup response:', {
-        status: response.status,
-        data: data
-      });
-
-      if (response.ok) {
-        Alert.alert(
-          'Success!',
-          'Account created successfully',
-          [
-            {
-              text: 'OK',
-              onPress: () => {
-                // Reset form
-                setFormData({
-                  username: '',
-                  email: '',
-                  password: '',
-                });
-                console.log('✅ User created:', data.user);
-              },
-            },
-          ]
-        );
-      } else {
-        Alert.alert('Signup Failed', data.error || 'Something went wrong');
-      }
     } catch (error) {
-      console.error('❌ Signup error:', error);
-      Alert.alert(
-        'Network Error',
-        'Please check your internet connection and backend server'
-      );
+      console.error('Error moving to next step:', error);
     } finally {
       setLoading(false);
     }
   };
-
-  
 
   return (
     <View style={styles.container}>
@@ -352,7 +321,7 @@ const SignupScreen = ({ onSwitchToLogin }) => {
         <View style={styles.noisePattern3} />
       </View>
 
-      {/* Animated Blobs - Simplified */}
+      {/* Animated Blobs */}
       <Animated.View
         style={[
           styles.blob1Container,
@@ -427,7 +396,7 @@ const SignupScreen = ({ onSwitchToLogin }) => {
             </View>
 
             <View style={styles.titleLine} />
-            <Text style={[styles.subtitle, getDynamicStyles().subtitle]}>Sign up to get started</Text>
+            <Text style={[styles.subtitle, getDynamicStyles().subtitle]}>Step 1 of 3 - Basic Info</Text>
 
             {/* Form Inputs */}
             <View style={styles.inputSection}>
@@ -463,17 +432,17 @@ const SignupScreen = ({ onSwitchToLogin }) => {
               />
             </View>
 
-            {/* Signup Button */}
+            {/* Continue Button */}
             <TouchableOpacity
-              style={[styles.signupButton, loading && styles.buttonDisabled]}
-              onPress={handleSignup}
+              style={[styles.continueButton, loading && styles.buttonDisabled]}
+              onPress={handleContinue}
               disabled={loading}
             >
               {loading ? (
                 <ActivityIndicator color="#ffffff" size="small" />
               ) : (
                 <>
-                  <Text style={styles.signupButtonText}>SIGN UP</Text>
+                  <Text style={styles.continueButtonText}>CONTINUE</Text>
                   <Ionicons name="arrow-forward" size={20} color="#ffffff" style={styles.buttonArrow} />
                 </>
               )}
@@ -658,7 +627,7 @@ const styles = StyleSheet.create({
     marginLeft: 5,
     fontWeight: '500',
   },
-  signupButton: {
+  continueButton: {
     backgroundColor: 'rgba(99, 33, 196, 0.7)',
     borderWidth: 2,
     borderColor: 'rgba(129, 57, 238, 0.7)',
@@ -678,7 +647,7 @@ const styles = StyleSheet.create({
   buttonDisabled: {
     opacity: 0.6,
   },
-  signupButtonText: {
+  continueButtonText: {
     color: '#ffffff',
     fontSize: 18,
     fontWeight: '600',

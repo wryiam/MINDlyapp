@@ -1,67 +1,103 @@
 import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Alert, TouchableOpacity, Text } from 'react-native';
+import GenStartScreen from './GenStartScreen'; // Using GenStartScreen
+import SignupScreen from './MultiStepSignup';
+import TutorialScreen from './TutorialScreen';
+import LandingPage from './LandingPage';
 import LoginScreen from './LoginScreen';
-import SignupScreen from './SignupScreen';
+
 
 const AuthScreen = () => {
-  const [currentScreen, setCurrentScreen] = useState('login'); // 'login' or 'signup'
+  const [currentScreen, setCurrentScreen] = useState('welcome');
   const [user, setUser] = useState(null);
 
   const handleLoginSuccess = (userData) => {
     console.log('✅ User logged in:', userData);
     setUser(userData);
-    // Here you could navigate to a home screen or main app
-    // For now, we'll just log it
+    setCurrentScreen('landing');
   };
 
   const handleSignupSuccess = (userData) => {
     console.log('✅ User signed up:', userData);
-    // Automatically switch to login after successful signup
-    setCurrentScreen('login');
+    setUser(userData);
+    setCurrentScreen('tutorial');
+  };
+
+  const handleTutorialComplete = () => {
+    console.log('✅ Tutorial completed');
+    setCurrentScreen('landing');
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    setCurrentScreen('welcome');
+    console.log('🔓 User logged out');
   };
 
   const switchToLogin = () => {
+    console.log('🔄 Switching to login screen');
     setCurrentScreen('login');
   };
 
   const switchToSignup = () => {
+    console.log('🔄 Switching to signup screen');
     setCurrentScreen('signup');
   };
 
-  // If user is logged in, you could show a different screen
-  if (user) {
+  // Debug: Log current screen changes
+  console.log('Current screen:', currentScreen);
+
+  // Render different screens based on current state
+  if (currentScreen === 'landing' && user) {
     return (
-      <View style={styles.loggedInContainer}>
-        <Text style={styles.welcomeText}>
-          Welcome, {user.username}!
-        </Text>
-        <Text style={styles.infoText}>
-          You are successfully logged in.
-        </Text>
-        <TouchableOpacity 
-          style={styles.logoutButton}
-          onPress={() => setUser(null)}
-        >
-          <Text style={styles.logoutText}>Logout</Text>
-        </TouchableOpacity>
-      </View>
+      <LandingPage 
+        user={user}
+        onLogout={handleLogout}
+      />
     );
   }
 
+  if (currentScreen === 'tutorial' && user) {
+    return (
+      <TutorialScreen 
+        user={user}
+        onComplete={handleTutorialComplete}
+      />
+    );
+  }
+
+  if (currentScreen === 'welcome') {
+    return (
+      <GenStartScreen
+        onSwitchToLogin={switchToLogin}
+        onSwitchToSignup={switchToSignup}
+      />
+    );
+  }
+
+  if (currentScreen === 'login') {
+    return (
+      <LoginScreen
+      onSwitchToSignup={switchToSignup}/>
+    );
+  }
+
+  if (currentScreen === 'signup') {
+    return (
+      <SignupScreen
+        onSignupSuccess={handleSignupSuccess}
+        onSwitchToLogin={switchToLogin}
+        onBack={() => setCurrentScreen('welcome')}
+      />
+    );
+  }
+
+  // Fallback - should never reach here
   return (
-    <View style={styles.container}>
-      {currentScreen === 'login' ? (
-        <LoginScreen
-          onLoginSuccess={handleLoginSuccess}
-          onSwitchToSignup={switchToSignup}
-        />
-      ) : (
-        <SignupScreen
-          onSignupSuccess={handleSignupSuccess}
-          onSwitchToLogin={switchToLogin}
-        />
-      )}
-    </View>
+    <GenStartScreen
+      onSwitchToLogin={switchToLogin}
+      onSwitchToSignup={switchToSignup}
+    />
   );
 };
 
@@ -69,36 +105,29 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  loggedInContainer: {
+  tempScreen: {
     flex: 1,
+    backgroundColor: '#2D1B69',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
-    backgroundColor: '#f5f5f5',
+    paddingHorizontal: 20,
   },
-  welcomeText: {
-    fontSize: 24,
+  tempTitle: {
+    fontSize: 28,
     fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 10,
+    color: '#ffffff',
+    marginBottom: 40,
   },
-  infoText: {
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
-    marginBottom: 30,
+  tempButton: {
+    backgroundColor: '#8b5cf6',
+    paddingVertical: 12,
+    paddingHorizontal: 30,
+    borderRadius: 20,
   },
-  logoutButton: {
-    backgroundColor: '#dc3545',
-    padding: 12,
-    borderRadius: 8,
-    minWidth: 120,
-  },
-  logoutText: {
+  tempButtonText: {
     color: '#ffffff',
     fontSize: 16,
     fontWeight: '600',
-    textAlign: 'center',
   },
 });
 

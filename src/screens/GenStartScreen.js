@@ -1,4 +1,8 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import Logo from '../../assets/images/logo.png'
+import { Image } from 'react-native';
+import * as Font from 'expo-font';
+ 
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -21,6 +25,8 @@ const { width, height } = Dimensions.get('window');
 const AnimatedSvg = Animated.createAnimatedComponent(Svg);
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 
+
+
 const BLOB_PATHS = {
   blob1: {
     start: 'M400,300 C550,120 800,160 900,300 C1000,440 850,640 700,680 C550,720 400,600 300,480 C200,360 250,480 400,300 Z',
@@ -31,23 +37,6 @@ const BLOB_PATHS = {
     end: 'M320,240 C440,40 760,160 840,240 C920,320 820,520 700,600 C580,680 340,620 220,500 C100,380 200,440 320,240 Z',
   },
 };
-
- useEffect(() => {
-    const loadFonts = async () => {
-      try {
-        await Font.loadAsync({
-          'SynBold': require('../../assets/fonts/Syncopate-Bold.ttf'),
-          'SynReg': require('../../assets/fonts/Syncopate-Regular.ttf'),
-          'Sora': require('../../assets/fonts/Sora-Variable.ttf'),
-        });
-        setFontsLoaded(true);
-      } catch (error) {
-        console.error('Font loading error:', error);
-      }
-    };
-    loadFonts();
-  }, []);
-
 
 const FormInput = React.memo(({ 
     placeholder, 
@@ -91,11 +80,7 @@ const FormInput = React.memo(({
     </View>
   ));
 
-const LoginScreen = ({ onLoginSuccess, onSwitchToSignup }) => {
-  const [formData, setFormData] = useState({
-    username: '', 
-    password: '',
-  });
+const LoginScreen = ({ onSwitchToLogin, onSwitchToSignup }) => {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
@@ -114,7 +99,21 @@ const LoginScreen = ({ onLoginSuccess, onSwitchToSignup }) => {
   const formOpacity = useRef(new Animated.Value(0)).current;
   const formScale = useRef(new Animated.Value(0.9)).current;
 
-
+ useEffect(() => {
+    const loadFonts = async () => {
+      try {
+        await Font.loadAsync({
+          'SynBold': require('../../assets/fonts/Syncopate-Bold.ttf'),
+          'SynReg': require('../../assets/fonts/Syncopate-Regular.ttf'),
+          'Sora': require('../../assets/fonts/Sora-Variable.ttf'),
+        });
+        setFontsLoaded(true);
+      } catch (error) {
+        console.error('Font loading error:', error);
+      }
+    };
+    loadFonts();
+  }, []);
 
   // Blob animations
   useEffect(() => {
@@ -180,22 +179,6 @@ const LoginScreen = ({ onLoginSuccess, onSwitchToSignup }) => {
     morphBlob2();
   }, []);
 
-  // Form entrance animation
-  useEffect(() => {
-    Animated.parallel([
-      Animated.timing(formOpacity, {
-        toValue: 1,
-        duration: 800,
-        useNativeDriver: false,
-      }),
-      Animated.timing(formScale, {
-        toValue: 1,
-        duration: 800,
-        useNativeDriver: false,
-      }),
-    ]).start();
-  }, []);
-
   // Interpolated values
   const blob1RotateInterpolate = blob1Rotate.interpolate({
     inputRange: [0, 360],
@@ -217,91 +200,7 @@ const LoginScreen = ({ onLoginSuccess, onSwitchToSignup }) => {
     outputRange: [BLOB_PATHS.blob2.start, BLOB_PATHS.blob2.end],
   });
 
-  const validateForm = () => {
-    const newErrors = {};
-
-    if (!formData.username || formData.username.trim().length === 0) {
-      newErrors.username = 'Username or email is required';
-    }
-
-    if (!formData.password || formData.password.length === 0) {
-      newErrors.password = 'Password is required';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleInputChange = (field, value) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value,
-    }));
-    
-    // Clear error when user starts typing
-    if (errors[field]) {
-      setErrors(prev => ({
-        ...prev,
-        [field]: '',
-      }));
-    }
-  };
-
-  const handleLogin = async () => {
-    if (!validateForm()) {
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      console.log('🔄 Attempting login with:', {
-        username: formData.username,
-        password: formData.password ? '***hidden***' : 'empty'
-      });
-
-      const response = await fetch(`${API_BASE_URL}/api/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await response.json();
-
-      console.log('📦 Login response:', {
-        status: response.status,
-        data: data
-      });
-
-      if (response.ok) {
-        console.log('✅ Login successful:', data.user);
-        
-        // Reset form
-        setFormData({
-          username: '',
-          password: '',
-        });
-        
-        // Call success callback immediately - no alert needed
-        if (onLoginSuccess) {
-          onLoginSuccess(data.user);
-        }
-      } else {
-        Alert.alert('Login Failed', data.error || 'Invalid credentials');
-      }
-    } catch (error) {
-      console.error('❌ Login error:', error);
-      Alert.alert(
-        'Network Error',
-        'Please check your internet connection and backend server'
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
+ 
   return (
     <View style={styles.container}>
       {/* Background Effects */}
@@ -353,92 +252,121 @@ const LoginScreen = ({ onLoginSuccess, onSwitchToSignup }) => {
           <AnimatedPath d={blob2PathInterpolate} fill="url(#grad2)" />
         </AnimatedSvg>
       </Animated.View>
+        <Text style={styles.title}>nowNoise</Text>
+        <Text style={styles.tagline}>your song, in a day.</Text>
+        <Image 
+        source={Logo}  
+        style={styles.logo}
+        />
+        <TouchableOpacity 
+          style={[styles.buttoned, styles.loginButtoned]}
+          onPress={onSwitchToSignup} // This will call the signup function
+        >
+        <Text style={styles.loginButtonTexted}>CREATE ACCOUNT</Text>
+      </TouchableOpacity>
 
+      <TouchableOpacity 
+        style={[styles.buttoned, styles.signupButtoned]}
+        onPress={onSwitchToLogin} // This will call the login function
+      >
+        <Text style={styles.signupButtonTexted}>LOGIN</Text>
+      </TouchableOpacity>
+
+          
+ 
       <BlurView intensity={80} style={styles.blurOverlay} tint="dark" />
 
-      <KeyboardAvoidingView
-        style={styles.keyboardContainer}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      >
-        <ScrollView 
-          contentContainerStyle={styles.scrollContainer}
-          showsVerticalScrollIndicator={false}
-        >
-          <Animated.View
-            style={[
-              styles.formContainer,
-              {
-                opacity: formOpacity,
-                transform: [{ scale: formScale }],
-              },
-            ]}
-          >
-            {/* Header */}
-            <View style={styles.formHeader}>
-              <View style={styles.backButton} />
-              <Text style={[styles.title]}>welcome back</Text>
-              <View style={styles.backButton} />
-            </View>
-
-            <View style={styles.titleLine} />
-
-            {/* Form Inputs */}
-            <View style={styles.inputSection}>
-              <FormInput
-                placeholder="Username / Email"
-                value={formData.username}
-                onChangeText={(text) => handleInputChange('username', text)}
-                iconName="person-outline"
-                autoCapitalize="none"
-                error={errors.username}
-              />
-              
-              <FormInput
-                placeholder="Password"
-                value={formData.password}
-                onChangeText={(text) => handleInputChange('password', text)}
-                iconName={showPassword ? "eye-off-outline" : "eye-outline"}
-                secureTextEntry={!showPassword}
-                autoCapitalize="none"
-                onIconPress={() => setShowPassword(prev => !prev)}
-                showToggle
-                error={errors.password}
-              />
-            </View>
-
-            {/* Login Button */}
-            <TouchableOpacity
-              style={[styles.loginButton, loading && styles.buttonDisabled]}
-              onPress={handleLogin}
-              disabled={loading}
-            >
-              {loading ? (
-                <ActivityIndicator color="#ffffff" size="small" />
-              ) : (
-                <>
-                  <Text style={styles.loginButtonText}>SIGN IN</Text>
-                  <Ionicons name="log-in-outline" size={20} color="#ffffff" style={styles.buttonIcon} />
-                </>
-              )}
-            </TouchableOpacity>
-
-            {/* Signup Link */}
-            <TouchableOpacity style={styles.signupLink} onPress={onSwitchToSignup}>
-              <Text style={styles.signupLinkText}>
-                Don't have an account? Sign up
-              </Text>
-            </TouchableOpacity>
-
-            {/* Test Credentials */}
-            
-          </Animated.View>
-        </ScrollView>
-      </KeyboardAvoidingView>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+    
+
+buttoned: {
+    top: 570,
+    paddingVertical: 15,
+    paddingHorizontal: 35,
+    borderRadius: 20,
+    alignItems: 'center',
+    shadowColor: 'rgba(139, 92, 246, 0.3)',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 1,
+    shadowRadius: 25,
+    elevation: 6,
+    zIndex: 1000,
+    marginRight : 25,
+    marginLeft : 25,
+
+  },
+  loginButtoned: {
+    backgroundColor: 'rgba(99, 33, 196, 0.5)',
+    borderWidth: 2,
+    borderColor: 'rgba(129, 57, 238, 0.5)',
+    marginBottom: 20,
+    zIndex: 1000,
+  },
+  signupButtoned: {
+    backgroundColor: 'transparent',
+    borderWidth: 2,
+    borderColor: '#8b5cf6',
+    zIndex: 1000,
+  },
+  loginButtonTexted: {
+    color: '#ffffff',
+    fontSize: 20,
+    fontWeight: '600',
+    letterSpacing: 4,
+    zIndex: 1000,
+  },
+  signupButtonTexted: {
+    color: '#ffffff',
+    fontSize: 20,
+    fontWeight: '600',
+    letterSpacing: 4,
+    zIndex: 1000,
+  },
+logo: {
+  position: 'absolute',
+  top: 100,
+  alignSelf: 'center', // Half of the width (40/2 = 20)
+  width: 110, // Made smaller (was 60)
+  height: 110, // Made smaller (was 60)
+  resizeMode: 'contain',
+  zIndex: 1000,
+},
+  
+  title: {
+    position: 'absolute',
+    fontSize: Math.min(width * 0.12, 32),
+    fontFamily: 'SynBold',
+    fontWeight: '700',
+    color: '#ffffff',
+    marginBottom: 150,
+    textAlign: 'center',
+    letterSpacing: 5,
+    textShadowColor: 'rgba(139, 92, 246, 0.5)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 5,
+    zIndex: 1000,
+    top: 230,
+    alignSelf: 'center',
+  },
+  tagline: {
+    position: 'absolute',
+    top: 270,
+    fontSize: Math.min(width * 0.12, 17),
+    fontWeight: '300',
+    color: '#ffffff',
+    textAlign: 'center',
+    letterSpacing: 4,
+    textShadowColor: 'rgba(139, 92, 246, 0.5)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 5,
+    zIndex: 100,
+    alignSelf: 'center',
+  }, 
+  
   container: {
     flex: 1,
     backgroundColor: '#1D1D55',
@@ -500,7 +428,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    zIndex: 1,
+    zIndex: 0,
   },
   keyboardContainer: {
     flex: 1,
@@ -536,18 +464,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#ffffff',
-    textAlign: 'center',
-    letterSpacing: 2,
-    textShadowColor: 'rgba(139, 92, 246, 0.5)',
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 5,
-    flex: 1,
-    fontFamily: 'SynReg',
-  },
+
   titleLine: {
     width: '100%',
     height: 2,
@@ -562,9 +479,9 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     marginBottom: 40,
   },
+  
   inputSection: {
     marginBottom: 30,
-    fontFamily: 'Sora'
   },
   inputContainer: {
     marginBottom: 20,
