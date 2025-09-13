@@ -28,10 +28,10 @@ MINDly includes a secure **login and signup system**.
 - Genres are picked from the start, as well as location data.
 
 <p align="center">  
-  <img width="202" height="652" alt="Login screen" src="https://github.com/user-attachments/assets/da5f9244-2873-43c7-930b-3eeae5136bdc" />  
-  <img width="202" height="652" alt="Signup screen" src="https://github.com/user-attachments/assets/263bc031-79a2-4ee4-accd-f08bca9cb087" />  
-  <img width="202" height="652" alt="Signup success" src="https://github.com/user-attachments/assets/fd0824f9-b97d-4a67-8ce9-34c728c29e72" />  
-  <img width="202" height="652" alt="Login success" src="https://github.com/user-attachments/assets/880f970d-0d8d-45e8-abde-c457ef01deab" />  
+  <img width="202" height="852" alt="Image" src="https://github.com/user-attachments/assets/5c217da2-5551-45ea-b4f0-63a1951fdde8" />
+<img width="202" height="852" alt="Image" src="https://github.com/user-attachments/assets/b95ad872-e08d-4bca-9f0d-d44785a4ffee" />
+<img width="202" height="852" alt="Image" src="https://github.com/user-attachments/assets/c6092f9c-96a6-41bf-871b-99538d3e6823" />
+<img width="202" height="852" alt="Image" src="https://github.com/user-attachments/assets/ea703c9a-f6e0-4531-9d52-26d8ca9abec4" />
 </p>
 
 ##  The News Feed  
@@ -52,7 +52,7 @@ The core of MINDly is its **curated news feed**, designed to surface only positi
   - **Save articles** for later viewing  
 
 <p align="center">  
-  <img width="202" height="652" alt="News feed screen" src="https://github.com/user-attachments/assets/84fd768a-5bde-4b93-b6a8-7b44a77035f3" />  
-  <img width="202" height="652" alt="Swipe feed screen" src="https://github.com/user-attachments/assets/52a71589-2be6-4475-8c7b-5426c94e2850" />  
-  <img width="202" height="652" alt="Saved articles screen" src="https://github.com/user-attachments/assets/8b17f724-8fc5-48ba-8634-cd094d6208e8" />  
+  <img width="202" height="852" alt="Image" src="https://github.com/user-attachments/assets/e5356979-132c-4cb2-ab64-da3aa6fa8e74" />
+<img width="202" height="852" alt="Image" src="https://github.com/user-attachments/assets/516609b4-e332-46dd-ac32-b50759af24f4" />
+<img width="202" height="852" alt="Image" src="https://github.com/user-attachments/assets/67bbfe55-6c7f-4b17-829e-ca3c71fd8808" />
 </p>
